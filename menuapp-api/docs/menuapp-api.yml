@@ -1,0 +1,84 @@
+openapi: "3.1.0"
+info:
+  title: Displaying Menu API
+  version: "1.0.0"
+servers:
+  - url: http://localhost:3000/m1
+    description: Displaying Menu API Dev Server
+components:
+  schemas:
+    food:
+      type: object
+      description: A food
+      required:
+        - name
+        - price
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 15
+          pattern: "^[A-Za-z0-9 ]+$"
+          description: Name of the food created
+          example: Cheese Burger
+        price:
+          type: float
+          minimum: 0.1
+          maximum: 999.99
+          pattern: "^[+-]?([0-9]*[.])?[0-9]+$"
+          description: Price of the food created
+          example: 7.99
+    foodWithId:
+      allOf:
+        - $ref: '#/components/schemas/food'
+        - type: object
+          description: A food with id
+          required:
+            - id
+          properties:
+            id:
+              type: number
+              description: food's id
+              example: 1
+paths: 
+  /menu:
+    description: All the foods on the menu
+    get: 
+      summary: List all foods on the menu
+      operationId: getAllfoods
+      description: |
+        List all the foods by the category
+        they belong
+      responses:
+        "200":
+          description: All the foods on the menu
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/foodWithId"
+        "400":
+          description: Bad Request
+    post:
+      summary: Add a food on the menu
+      operationId: addFood
+      description: Add a food on the menu list
+      requestBody:
+        description: Food's data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/food"
+      responses:
+        "201":
+          description: Add a food
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/foodWithId"
+        "400":
+          description: |
+            Bad Request.
+            The food in the body of the Request is either missiong or malformed.
+
