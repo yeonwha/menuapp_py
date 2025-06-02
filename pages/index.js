@@ -12,7 +12,7 @@ export async function getStaticProps(){
 
   try {
     const { data } = 
-      await axios.get('http://localhost:3004/m1/menu');
+      await axios.get(`${process.env.NEXT_PUBLIC_HOST}/m1/menu`);
       jsonData = data;
   } 
   catch (err) {

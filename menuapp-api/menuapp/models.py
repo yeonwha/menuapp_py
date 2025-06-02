@@ -5,9 +5,9 @@ from django.core.validators import RegexValidator, MinLengthValidator, MaxValueV
 
 class Food(models.Model):
     category = models.CharField(max_length=20, validators=[
-        RegexValidator(
-            regex = r'^(Main|Dessert|Drink)$'
-        )
+        # RegexValidator(
+        #     regex = r'^(Main|Dessert|Drink)$'
+        # )
     ])
     name = models.CharField(max_length=30, validators=[
         RegexValidator(
