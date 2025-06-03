@@ -2,14 +2,17 @@ import PrimaryButton from "./Buttons/PrimaryButton"
 import editPrice from "./Functions/editPrice";
 
 export default function EditForm({ selectedItem, handleClose, setFoodList }) {
+    // Edit price form handler
+    // send editPrice new price data and selected food item to call PATCH
     function handleApplySubmit(e){
         e.preventDefault();
         const form = e.target; 
         const formData = new FormData(form);
-        editPrice(formData, setFoodList);
+        editPrice(formData, selectedItem, setFoodList);
         handleClose();
     }
-   return(
+
+    return(
         <>
             <div className="edit_price_form">                
                 <form id="form" className="edit_price_form" onSubmit={handleApplySubmit}>

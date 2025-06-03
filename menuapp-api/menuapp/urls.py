@@ -3,4 +3,5 @@ from .views import FoodAPIController
 
 urlpatterns=[
     path('menu', FoodAPIController.as_view()),
+    path('menu/', ),
 ]

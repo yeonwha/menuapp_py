@@ -2,16 +2,16 @@ import PrimaryButton from "./Buttons/PrimaryButton";
 import DangerButton from "./Buttons/DangerButton";
 import { useState } from "react"; 
 import EditForm from "./EditForm";
+import deleteFood from "./Functions/deleteFood";
 
 /**
- * Showing the FoodList according to foodList, and update it with setFoodList.
+ * Render the array items in passed foodList, and update the list with setFoodList hook.
  * Open the price edit form once a certain food item is selected for PATCH (will be implemented later).
  * @param foodList
  * @param setFoodList
  * @returns: All the food items on the list.
  */
 export default function List({foodList, setFoodList}) {
-    // Three food categories
     const foodCategory = ["Main", "Dessert", "Drink"];
     
     // Handle checkbox onclick to show what food items are selected.
@@ -34,16 +34,15 @@ export default function List({foodList, setFoodList}) {
     const [openEditForm, setOpenEditForm] = useState(false);    // EDIT button check hook
     const [selectedItem, setSelectedItem] = useState(null);     // selected food set hook
     
-    // An EDIT button is clicked, set the selectedFood, and open the price edit form
     const handleOpen = (selectedFood) => {
         setSelectedItem(selectedFood);
         setOpenEditForm(!openEditForm);
     }
-    // Close the price edit form
+
     const handleClose = () => {
         setOpenEditForm(false);
     }
-
+    
     return (
         <>
         <ol>
@@ -63,10 +62,10 @@ export default function List({foodList, setFoodList}) {
                                 <tr key={selectedFood.id}>
                                     <td>
                                         <input type="checkbox" name={selectedFood.name + selectedFood.id} id={index} 
-                                             onChange={() => handleClick(selectedFood)}/>
+                                            checked= {selectedFood.checked} onChange={() => handleClick(selectedFood)}/>
                                     </td>
                                     <td className="px-3 py-2">{selectedFood.name}</td>
-                                    <td className="px-3 py-2">{selectedFood.price}</td>
+                                    <td className="px-3 py-2">{selectedFood.price.toFixed(2)}</td>
                                         <td className="px-3 py-2">
                                             <PrimaryButton 
                                                 className="font-semibold bg-green-600" 
@@ -78,7 +77,7 @@ export default function List({foodList, setFoodList}) {
                                                 (<EditForm key="edit_price_form" selectedItem={selectedItem} handleClose={handleClose} setFoodList={setFoodList}/>)}
                                         </td>
                                         <td className="px-3 py-2">
-                                            <DangerButton onClick={() => deleteFood(selectedFood)}>
+                                            <DangerButton onClick={() => deleteFood(selectedFood, setFoodList)}>
                                                 Delete
                                             </DangerButton>
                                         </td>
