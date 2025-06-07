@@ -28,11 +28,16 @@ npm run dev
 
 Second, update the configuration files for both frontend and backend:
 Open env.local (./menuapp_py/) file, replace NEXT_PUBLIC_HOSTNAME with your local IP address.
+```
 # Example: .env.local
 NEXT_PUBLIC_HOSTNAME=0.0.0.0  # Replace with your actual local IP
+```
+
 Open settings.py (./menu_api/) file, replace ALLOWED_HOSTS = [ '0.0.0.0', 'localhost'] with your local IP address.
+```
 # Example: settings.py
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost'] # Replace '0.0.0.0' with your actual local IP
+```
 
 Third, 
 run the backend server on the menuapp-api(menuapp_py/menuapp-api/) directory:
