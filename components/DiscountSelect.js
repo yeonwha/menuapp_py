@@ -2,7 +2,6 @@ import applyDiscount  from "./Functions/applyDiscount.js";
 import PrimaryButton from "./Buttons/PrimaryButton"
 
  export default function DiscountSelect({ foodList, setFoodList }) {
-    console.log("discount selet setFoodList:", setFoodList);
     // Apply discount form handler
     // send discount rate and selected food ids list to applyDiscount function for PATCH
     // Call applyDiscount function only if there's selected food item

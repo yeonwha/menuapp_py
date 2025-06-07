@@ -14,12 +14,12 @@ export default async function addNewFood( formData , setFoodList ) {
             "name": formData.get("food_name"), 
             "price": formData.get("food_price"),
         }
-        await axios.post(`${process.env.NEXT_PUBLIC_HOST}/m1/menu`, newFood);
-        const updatedFoodList = await axios.get(`${process.env.NEXT_PUBLIC_HOST}/m1/menu`);
+        await axios.post(`${process.env.NEXT_PUBLIC_HOST}/m1/menu/`, newFood);
+        const updatedFoodList = await axios.get(`${process.env.NEXT_PUBLIC_HOST}/m1/menu/`);
         setFoodList(updatedFoodList.data);
     }
     catch (err) {
         console.log('Bad request. Check the error message.');
-        onsole.error(err);
+        console.error(err);
     }    
 }
