@@ -26,6 +26,8 @@ export async function getStaticProps(){
 
 export default function Home({ jsonData }) {
   const [foodList, setFoodList] = useState(jsonData);   // Menu list hook
+  console.log("Home component: Current foodList state is:", foodList);
+  console.log("Home Component: setFoodLis function is:", setFoodList)
 
   return (
     <>
@@ -33,13 +35,13 @@ export default function Home({ jsonData }) {
         <div className="container m-6"><Header /></div>
         <main className="inline-block justify-center container mx-8 px-4">
           <div className="flex justify-center">
-          <Form key={() => (foodList.length + 1)} setFoodList={setFoodList}/>
+          <Form setFoodList={setFoodList}/>
           </div>
           <div className="container my-4 flex justify-center">
-          <List key={() => (foodList.length + 1)} foodList={foodList} setFoodList={setFoodList}/>
+          <List foodList={foodList} setFoodList={setFoodList}/>
           </div>
           <div className="flex justify-center">
-          <DiscountSelect ket={() => (foodList.length + 1)} foodList={foodList}/>
+          <DiscountSelect foodList={foodList} setFoodList={setFoodList}/>
           </div>
         </main>
         <Footer />

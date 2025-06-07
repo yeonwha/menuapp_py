@@ -1,7 +1,8 @@
-import applyDiscount from "./Functions/applyDiscount";
+import applyDiscount  from "./Functions/applyDiscount.js";
 import PrimaryButton from "./Buttons/PrimaryButton"
 
  export default function DiscountSelect({ foodList, setFoodList }) {
+    console.log("discount selet setFoodList:", setFoodList);
     // Apply discount form handler
     // send discount rate and selected food ids list to applyDiscount function for PATCH
     // Call applyDiscount function only if there's selected food item
@@ -11,8 +12,11 @@ import PrimaryButton from "./Buttons/PrimaryButton"
         const formData = new FormData(form);
         const checkedFoods = foodList.filter((food) => food.checked === true);
         const checkedFoodIds = checkedFoods.map(food => food.id);
-        if (checkedFoods) {
+
+        if (checkedFoods.length > 0) {
             applyDiscount(formData, checkedFoodIds, setFoodList);
+        } else {
+            console.log("No food items selected for discount.");
         }
     }
 

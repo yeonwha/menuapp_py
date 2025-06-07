@@ -1,9 +1,8 @@
 from django.urls import path
-from .views import FoodAPIController
+from .views import FoodListCreateAPIView, FoodRetrieveUpdateDestroyAPIView, DiscountApplyAPIView
 
 urlpatterns=[
-    path('menu', FoodAPIController.as_view()),
-    path('menu/<int:food_id>', FoodPriceEdit),
-    path('menu/<int:food_id>', FoodDeleteController)
-    patch('menu/discount', FoodApplyDiscount),
+    path('menu/', FoodListCreateAPIView.as_view(), name='food-list-create'),
+    path('menu/<int:pk>/', FoodRetrieveUpdateDestroyAPIView.as_view(), name='food-detail'),
+    path('menu/discount/', DiscountApplyAPIView.as_view()),
 ]

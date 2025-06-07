@@ -8,7 +8,7 @@ import axios from "axios";
  * @param {*} setFoodList 
  */
 export default async function deleteFood(selectedFood, setFoodList){
-    await axios.delete(`${process.env.NEXT_PUBLIC_HOST}/m1/menu/${selectedFood.id}`);
-    const updatedFoodList = await axios.get(`${process.env.NEXT_PUBLIC_HOST}/m1/menu`);
+    await axios.delete(`${process.env.NEXT_PUBLIC_HOST}/m1/menu/${selectedFood.id}/`);
+    const updatedFoodList = await axios.get(`${process.env.NEXT_PUBLIC_HOST}/m1/menu/`);
     setFoodList(updatedFoodList.data);
 }

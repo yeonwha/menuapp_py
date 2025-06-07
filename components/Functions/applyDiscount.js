@@ -10,6 +10,7 @@ import axios from "axios";
  */
 export default async function applyDiscount( formData, selectedFoodIds, setFoodList ){
     try {
+        console.log("applyDiscount setFoodList before patching:", setFoodList);
         let discountRate = parseFloat(formData.get("discount_rate"));
         console.log("selectedFoodIds:", selectedFoodIds);
         const request = {
@@ -17,11 +18,20 @@ export default async function applyDiscount( formData, selectedFoodIds, setFoodL
             foodIds: selectedFoodIds
         }
         
-        await axios.patch(`${process.env.NEXT_PUBLIC_HOST}/m1/menu/discount`, request);
+        await axios.patch(`${process.env.NEXT_PUBLIC_HOST}/m1/menu/discount/`, request);
         const updatedFoodList = await axios.get(`${process.env.NEXT_PUBLIC_HOST}/m1/menu/`);
-        setFoodList(updatedFoodList.data);
+        const newFoodData = updatedFoodList.data
+
+        setFoodList(prevFoodList => {
+            const resetCheckedList = newFoodData.map(newFood => {
+                return { ...newFood, checked: false };
+            });
+            console.log("applyDiscount: Setting state with this merged list:", resetCheckedList); 
+            return resetCheckedList;
+        });
     }
     catch (err) {
         console.log('Bad request. something wrong');
+        console.error(err);
     } 
 }
