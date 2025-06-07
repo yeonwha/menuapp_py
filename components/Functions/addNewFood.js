@@ -19,6 +19,7 @@ export default async function addNewFood( formData , setFoodList ) {
         setFoodList(updatedFoodList.data);
     }
     catch (err) {
-        console.log('Bad request. something wrong');
+        console.log('Bad request. Check the error message.');
+        onsole.error(err);
     }    
 }

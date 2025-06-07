@@ -1,8 +1,7 @@
 from django.db import models
-
 from django.core.validators import RegexValidator, MinLengthValidator, MaxValueValidator, MinValueValidator
-# Create your models here.
 
+# Food model regex
 class Food(models.Model):
     category = models.CharField(max_length=20, validators=[
         RegexValidator(

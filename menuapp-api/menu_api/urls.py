@@ -18,6 +18,6 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('m1/', include('menuapp.urls')),
+    path('admin/', admin.site.urls),        # Admin page to create initial data
+    path('m1/', include('menuapp.urls')),   
 ]

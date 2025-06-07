@@ -1,9 +1,7 @@
 from django.contrib import admin
-
-# Register your models here.
-
 from .models import Food
 
+# Food model attributes to create by admin
 class FoodAdmin(admin.ModelAdmin):
     list_display = (
         "category",

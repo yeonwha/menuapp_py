@@ -16,6 +16,7 @@ export default async function editPrice( formData, selectedItem, setFoodList ){
         setFoodList(updatedFoodList.data);
     }
     catch (err) {
-        console.log('Bad request. something wrong');
+        console.log('Bad request. Check the error message.');
+        console.error(err);        
     } 
 }

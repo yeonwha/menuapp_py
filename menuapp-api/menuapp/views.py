@@ -2,19 +2,24 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.db import transaction # Import transaction for atomicity
-from django.db.models import F # Import F expression for database-level updates
+from django.db import transaction 
+from django.db.models import F 
 from .models import Food
 from .serializers import FoodSerializer
 
+# Create and Retrieve the food list
 class FoodListCreateAPIView(generics.ListCreateAPIView):
     queryset = Food.objects.all()
     serializer_class = FoodSerializer
 
+# Edit and Delete Food
 class FoodRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Food.objects.all()
     serializer_class = FoodSerializer
 
+# Handle applyDiscount patch calling to update all the selected foods.
+# if the discount rate is out of range (0.1~0.9), no rate or selected food is provided, 
+# Response 400 with error message.
 class DiscountApplyAPIView(APIView):
     def patch(self, request, *args, **kwargs):
         discount_rate = request.data.get('rate')
@@ -45,8 +50,6 @@ class DiscountApplyAPIView(APIView):
         
         try:
             with transaction.atomic():
-            # 3. Get the food items that need to be updated
-            # Filter by the provided foodIds
                 foods_to_update = Food.objects.filter(id__in=food_ids)
 
                 if not foods_to_update.exists():
@@ -55,26 +58,24 @@ class DiscountApplyAPIView(APIView):
                         status=status.HTTP_404_NOT_FOUND
                     )
 
-            # 4. Apply the discount using F() expression for efficient bulk update
-            # F('price') allows you to reference existing database field values
+                # Total number of updated food items
                 updated_count = foods_to_update.update(price=F('price') * (1 - discount_rate))
 
-            # Optional: Retrieve the updated foods to send their new prices back
-            # This performs another query, but ensures you send fresh data.
-            # If you only need a count, you can skip this.
+                # Update foods data
                 updated_foods_data = FoodSerializer(foods_to_update, many=True).data
 
+                # Response with the successful result
                 return Response(
                     {
                         "message": f"Discount of {discount_rate*100:.0f}% applied to {updated_count} food items.",
                         "updated_count": updated_count,
-                        "updated_foods_data": updated_foods_data # Return updated data
+                        "updated_foods_data": updated_foods_data
                     },
                     status=status.HTTP_200_OK
                 )
 
-        except Exception as e:
+        except Exception as err:
             return Response(
-                {"error": f"An unexpected error occurred: {str(e)}"},
+                {"error": f"Server error: {str(err)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

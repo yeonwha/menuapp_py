@@ -26,8 +26,6 @@ export async function getStaticProps(){
 
 export default function Home({ jsonData }) {
   const [foodList, setFoodList] = useState(jsonData);   // Menu list hook
-  console.log("Home component: Current foodList state is:", foodList);
-  console.log("Home Component: setFoodLis function is:", setFoodList)
 
   return (
     <>
