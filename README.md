@@ -50,3 +50,20 @@ python manage.py runserver 0.0.0.0:3005
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the page.
 
 
+## How to create initial data (Admin)
+
+You can add initial data as admin. Activate the virtual environment and create a superuser
+```bash
+source .venv/bin/activate  
+python manage.py runserver createsuperuser
+```
+
+Use username and password to log into the admin site (http://youripaddress:3005/admin)
+
+## Testing
+
+Test code for creating, updating, and deleting functionalities with valid and invalid data is available.
+```bash
+source .venv/bin/activate  
+python manage.py test
+```
