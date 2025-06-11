@@ -1,6 +1,7 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 import json
+from decimal import Decimal
 from .models import Food
 
 class FoodAdminTestCase(TestCase):
@@ -98,31 +99,17 @@ class FoodAdminTestCase(TestCase):
 
         # Test too small price
         # 1. Get the form page AGAIN for a fresh CSRF token for 'too small' post
-        print(f"Attempting GET for 'too small' CSRF from: {self.food_admin_add_url}")
         response_get_small = self.client.get(self.food_admin_add_url)
-        print(f"GET for 'too small' CSRF status code: {response_get_small.status_code}")
-        if response_get_small.status_code != 200:
-             print(f"GET for 'too small' CSRF redirected to: {response_get_small.url}") # <--- Check this if not 200
         self.assertEqual(response_get_small.status_code, 200, "Expected 200 OK for GET before 'too small' POST.")
 
         # Ensure context exists before accessing CSRF token
         self.assertIsNotNone(response_get_small.context, "Context is None for GET before 'too small' POST.")
         self.assertIn('csrf_token', response_get_small.context, "CSRF token not in context for GET before 'too small' POST.")
         csrf_token_small = response_get_small.context['csrf_token']
-        print(f"CSRF Token obtained for 'too small': {csrf_token_small[:10]}...")
         food_data_too_small['csrfmiddlewaretoken'] = csrf_token_small
-        print(f"Data for 'too small' POST: {food_data_too_small}")
-
 
         # 2. Post the form with the invalid data for 'too small'
-        print(f"Attempting POST for 'too small' to: {self.food_admin_add_url}")
         response_too_small = self.client.post(self.food_admin_add_url, food_data_too_small)
-        print(f"POST for 'too small' status code: {response_too_small.status_code}")
-        if response_too_small.status_code == 302:
-            print(f"POST for 'too small' REDIRECTED TO: {response_too_small.url}")
-        else:
-            # If not 302, but still fails other asserts, print content
-            print(f"POST for 'too small' content (first 500 chars): {response_too_small.content.decode('utf-8')[:500]}...")
 
         # This assertion is where it's failing
         self.assertEqual(response_too_small.status_code, 200, "Expected 200 OK to re-render form on 'too small' POST.")
@@ -134,8 +121,8 @@ class FoodAdminTestCase(TestCase):
         self.assertFalse(Food.objects.filter(name='Poke Too Big').exists())
         self.assertFalse(Food.objects.filter(name='Poke Too Small').exists())
 
-# Test creating functionality a food with the form
 class FormTestCase(TestCase):
+    # Test creating functionality via the form
     def test_create_food_via_form(self):
         food_data = {
             'category': 'Main',
@@ -150,22 +137,119 @@ class FormTestCase(TestCase):
             content_type='application/json' 
         )
 
-        # Assert if POST request is successful
+        # Assert if POST request is successful and verify if data is correct
         self.assertEqual(response.status_code, 201)
         spot_prawns = Food.objects.get(name='Spot prawns')
         self.assertEqual(spot_prawns.price, 18.79)
         self.assertEqual(spot_prawns.category, 'Main')
         self.assertEqual(spot_prawns.checked, False)
 
-    # def test_out_of_range_price_via_form(self):
-    #     response = self.client.post('/menu/', {
-    #         'category': 'Drink',
-    #         'name': 'Uranium juice',
-    #         'price': 2000.00,0
-    #         'checked': False,
-    #     })
-    #     try:
-    #         Food.objects.get(name='Uranium juice')
-    #         self.fail()
-    #     except Food.DoesNotExist:
-    #         pass
+    # Test creating functionality fail by attempting with a too long name
+    def test_create_food_long_name(self):
+        long_name = {
+            'category': 'Main',
+            'name': 'Spot prawnsssssssssssssssssssssssssssssssssssss',
+            'price': 18.79,
+            'checked': False,
+        }
+
+        response = self.client.post(
+            '/m1/menu/',
+            data=json.dumps(long_name), # convert food_date to json object
+            content_type='application/json' 
+        )
+        
+        # Assert if POST request failed
+        self.assertEqual(response.status_code, 400)
+
+    # Test update functionality via price edit form 
+    def test_edit_price(self):
+        # 1. Create a valid data to update first
+        food_data = {
+            'category': 'Dessert',
+            'name': 'Nanaimo bar',
+            'price': 9.99,
+            'checked': False,
+        }
+
+        self.client.post(
+            '/m1/menu/',
+            data=json.dumps(food_data), 
+            content_type='application/json' 
+        )
+
+        # 2. Call a patch with new price to the created food's id endpoint
+        new_price = {
+            'price': 1.50,
+        }
+
+        nanaimo_bar = Food.objects.get(name='Nanaimo bar')
+        response = self.client.patch(
+            f'/m1/menu/{nanaimo_bar.id}/',
+            data=json.dumps(new_price),
+            content_type='application/json'
+        )
+
+        # 3. Verify if the patch is successful and the price is updated
+        self.assertEqual(response.status_code, 200)
+        updated_nanaimo_bar = Food.objects.get(name='Nanaimo bar')
+        self.assertEqual(updated_nanaimo_bar.price, 1.50)
+
+# Test bulk update functionality (applyDiscount)
+class BulkUpdateTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        # Create some initial food items for testing
+        cls.food1 = Food.objects.create(category='Main', name='Chicken pie', price=Decimal('10.00'), checked=False)
+        cls.food2 = Food.objects.create(category='Drink', name='Bubble tea', price=Decimal('4.00'), checked=True)
+        cls.food3 = Food.objects.create(category='Dessert', name='Mint jelly', price=Decimal('5.00'), checked=False)
+        cls.food4 = Food.objects.create(category='Drink', name='Orange juice', price=Decimal('3.00'), checked=True)
+
+    # Test valid rate and selected ids and verify with the successful status code
+    def test_discount_apply_success(self):
+        selected_food_ids = [self.food2.id, self.food4.id]
+
+        payload = {
+            'foodIds': selected_food_ids,
+            'rate': 0.10
+        }
+
+        response = self.client.patch(
+            '/m1/menu/discount/',
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    # Test unsuccessful attempt with invaild rate and verify Bad request 400 code
+    def test_discount_apply_invaild_rate(self):
+        selected_food_ids = [self.food2.id, self.food4.id]
+
+        payload = {
+            'foodIds': selected_food_ids,
+            'rate': 1.5  # out of range (0.1 ~ 0.9)
+        }
+
+        response = self.client.patch(
+            '/m1/menu/discount/',
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    # Test unsuccessful attempt with empty id list and verify Bad request 400 code
+    def test_discount_apply_no_foods(self):
+        payload = {
+            'food_ids': [],  # empty id list to update
+            'discount_rate': 0.15
+        }
+
+        response = self.client.patch(
+            '/m1/menu/discount/',
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 400)
