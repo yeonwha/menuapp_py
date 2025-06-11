@@ -195,6 +195,33 @@ class FormTestCase(TestCase):
         updated_nanaimo_bar = Food.objects.get(name='Nanaimo bar')
         self.assertEqual(updated_nanaimo_bar.price, 1.50)
 
+# Test delete functionality 
+class DeleteTestCase(TestCase):
+    def test_delete_food(self):
+        # 1. Create a valid data to delete first
+        food_to_delete = {
+            'category': 'Drink',
+            'name': 'Radiactive water',
+            'price': 1.99,
+            'checked': False,
+        }
+
+        self.client.post(
+            '/m1/menu/',
+            data=json.dumps(food_to_delete), 
+            content_type='application/json' 
+        )
+
+        # 2. Call a delete with the created data's id endpoint
+        radiactive_water = Food.objects.get(name='Radiactive water')
+        response = self.client.delete(
+            f'/m1/menu/{radiactive_water.id}/',
+        )
+
+        # 3. Check the successful 204 code and verify the deleted food
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(Food.objects.filter(name='Radiactive water').exists())
+
 # Test bulk update functionality (applyDiscount)
 class BulkUpdateTestCase(TestCase):
     @classmethod
