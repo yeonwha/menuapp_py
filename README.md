@@ -13,7 +13,7 @@ The backend is also implemented in JavaScript, Express and MongoDB
 
 ## Build Environment
 
-    - Complier: Visual Studio Code
+    - IDE: Visual Studio Code
     - Framework: Node.js, React, Next.js @latest
     - Middleware and Server: Python Virtual Environment, Django REST Framework
     - Database: Sqlite
